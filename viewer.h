@@ -11,11 +11,20 @@ public:
     ~Viewer();
     void show();
     void loadImage(const std::string &filePath);
+    void setBackgroundColor(GdkRGBA color);
+    void rotateImage(int angle);
 
 private:
     static void on_open_image(GtkWidget *widget, gpointer data);
+    static void on_change_bg_color(GtkWidget *widget, gpointer data);
+    static void on_rotate_left(GtkWidget *widget, gpointer data);
+    static void on_rotate_right(GtkWidget *widget, gpointer data);
+
     GtkWidget *window;
     GtkWidget *image;
+    GdkRGBA bgColor;
+    int rotationAngle;
+    std::string currentFilePath;
 };
 
 #endif // VIEWER_H
