@@ -9,7 +9,7 @@
 Viewer::Viewer() : rotationAngle(0), pixbuf(nullptr)
 {
     window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-    gtk_window_set_title(GTK_WINDOW(window), "EPS Viewer");
+    gtk_window_set_title(GTK_WINDOW(window), "Kabuto EPS Viewer/Converter");
     gtk_window_set_default_size(GTK_WINDOW(window), 800, 600);
 
     image = gtk_image_new();
