@@ -1,4 +1,5 @@
 **Kabuto**
+---
 ![alt text](https://github.com/msbCyricTohoku/Kabuto/blob/main/icon/icon.png)
 
 ---
