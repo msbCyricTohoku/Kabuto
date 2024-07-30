@@ -22,5 +22,8 @@ Run the program using:
 ```
 ./Kabuto
 ```
+---
+screenshot:
+![alt text](https://github.com/msbCyricTohoku/Kabuto/blob/main/icon/screenshot.png)
 
 Enjoy.
