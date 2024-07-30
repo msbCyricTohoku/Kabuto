@@ -1,3 +1,5 @@
+//Kabuto EPS image viewer and converter to png 
+//Feel free to change your image background and enjoy simple and free and open-source program
 #include "viewer.h"
 #include <iostream>
 #include <cstdlib>
