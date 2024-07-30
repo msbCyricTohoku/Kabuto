@@ -2,7 +2,7 @@
 #include <iostream>
 #include <cstdlib>
 #include <cmath>
-#include <cairo.h>
+#include <cstdio>
 
 Viewer::Viewer() : rotationAngle(0), pixbuf(nullptr)
 {
@@ -67,27 +67,41 @@ void Viewer::show()
 void Viewer::loadImage(const std::string &filePath)
 {
     currentFilePath = filePath;
-    std::string outputPath = filePath + ".png";
-    std::string command = "gs -dNOPAUSE -dBATCH -sDEVICE=pngalpha -dEPSCrop -sOutputFile=\"" + outputPath + "\" \"" + filePath + "\"";
+
+    // Create a temporary file for the PNG output
+    char tempPath[] = "/tmp/epsviewer_XXXXXX.png";
+    int fd = mkstemps(tempPath, 4); // 4 is the length of ".png"
+    if (fd == -1)
+    {
+        std::cerr << "Failed to create temporary file for PNG output." << std::endl;
+        return;
+    }
+    close(fd); // Close the file descriptor as we don't need it
+
+    std::string command = "gs -dNOPAUSE -dBATCH -sDEVICE=pngalpha -dEPSCrop -sOutputFile=\"" + std::string(tempPath) + "\" \"" + filePath + "\"";
 
     int ret = std::system(command.c_str());
     if (ret != 0)
     {
         std::cerr << "Ghostscript command failed with error code " << ret << std::endl;
+        std::remove(tempPath); // Remove the temporary file
         return;
     }
 
     GError *error = NULL;
-    pixbuf = gdk_pixbuf_new_from_file(outputPath.c_str(), &error);
+    pixbuf = gdk_pixbuf_new_from_file(tempPath, &error);
     if (error)
     {
         std::cerr << "Failed to load image: " << error->message << std::endl;
         g_error_free(error);
+        std::remove(tempPath); // Remove the temporary file
         return;
     }
 
     gtk_image_set_from_pixbuf(GTK_IMAGE(image), pixbuf);
     gtk_widget_show(image);
+
+    std::remove(tempPath); // Remove the temporary file
 }
 
 void Viewer::setBackgroundColor(GdkRGBA color)
