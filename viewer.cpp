@@ -3,7 +3,7 @@
 #include <cstdlib>
 #include <cmath>
 
-Viewer::Viewer() : rotationAngle(0)
+Viewer::Viewer() : rotationAngle(0), pixbuf(nullptr)
 {
     window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     gtk_window_set_title(GTK_WINDOW(window), "EPS Viewer");
@@ -52,6 +52,10 @@ Viewer::Viewer() : rotationAngle(0)
 
 Viewer::~Viewer()
 {
+    if (pixbuf)
+    {
+        g_object_unref(pixbuf);
+    }
 }
 
 void Viewer::show()
@@ -72,7 +76,16 @@ void Viewer::loadImage(const std::string &filePath)
         return;
     }
 
-    gtk_image_set_from_file(GTK_IMAGE(image), outputPath.c_str());
+    GError *error = NULL;
+    pixbuf = gdk_pixbuf_new_from_file(outputPath.c_str(), &error);
+    if (error)
+    {
+        std::cerr << "Failed to load image: " << error->message << std::endl;
+        g_error_free(error);
+        return;
+    }
+
+    gtk_image_set_from_pixbuf(GTK_IMAGE(image), pixbuf);
     gtk_widget_show(image);
 }
 
@@ -90,13 +103,8 @@ void Viewer::rotateImage(int angle)
         rotationAngle += 360;
     }
 
-    std::string outputPath = currentFilePath + ".png";
-    GError *error = NULL;
-    GdkPixbuf *pixbuf = gdk_pixbuf_new_from_file(outputPath.c_str(), &error);
-    if (error)
+    if (!pixbuf)
     {
-        std::cerr << "Failed to load image: " << error->message << std::endl;
-        g_error_free(error);
         return;
     }
 
@@ -120,13 +128,11 @@ void Viewer::rotateImage(int angle)
     if (!rotatedPixbuf)
     {
         std::cerr << "Failed to rotate image." << std::endl;
-        g_object_unref(pixbuf);
         return;
     }
 
     gtk_image_set_from_pixbuf(GTK_IMAGE(image), rotatedPixbuf);
     g_object_unref(rotatedPixbuf);
-    g_object_unref(pixbuf);
 }
 
 void Viewer::saveImage()
@@ -146,17 +152,37 @@ void Viewer::saveImage()
         std::string outputPath(filePath);
         g_free(filePath);
 
-        std::string inputPath = currentFilePath + ".png";
-        GdkPixbuf *pixbuf = gdk_pixbuf_new_from_file(inputPath.c_str(), NULL);
-        if (pixbuf)
+        if (!pixbuf)
         {
-            gdk_pixbuf_save(pixbuf, outputPath.c_str(), "png", NULL, NULL);
-            g_object_unref(pixbuf);
+            std::cerr << "No image loaded to save." << std::endl;
+            return;
         }
-        else
+
+        GdkPixbuf *rotatedPixbuf = NULL;
+        switch (rotationAngle)
         {
-            std::cerr << "Failed to load image for saving." << std::endl;
+        case 90:
+            rotatedPixbuf = gdk_pixbuf_rotate_simple(pixbuf, GDK_PIXBUF_ROTATE_CLOCKWISE);
+            break;
+        case 180:
+            rotatedPixbuf = gdk_pixbuf_rotate_simple(pixbuf, GDK_PIXBUF_ROTATE_UPSIDEDOWN);
+            break;
+        case 270:
+            rotatedPixbuf = gdk_pixbuf_rotate_simple(pixbuf, GDK_PIXBUF_ROTATE_COUNTERCLOCKWISE);
+            break;
+        default:
+            rotatedPixbuf = gdk_pixbuf_copy(pixbuf); // No rotation
+            break;
         }
+
+        if (!rotatedPixbuf)
+        {
+            std::cerr << "Failed to rotate image for saving." << std::endl;
+            return;
+        }
+
+        gdk_pixbuf_save(rotatedPixbuf, outputPath.c_str(), "png", NULL, "background", gdk_rgba_to_string(&bgColor), NULL);
+        g_object_unref(rotatedPixbuf);
     }
 
     gtk_widget_destroy(dialog);

@@ -29,6 +29,7 @@ private:
     GdkRGBA bgColor;
     int rotationAngle;
     std::string currentFilePath;
+    GdkPixbuf *pixbuf; // To store the loaded image
 };
 
 #endif // VIEWER_H
