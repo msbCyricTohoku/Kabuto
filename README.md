@@ -1,4 +1,7 @@
 **Kabuto**
+![alt text](https://github.com/msbCyricTohoku/Kabuto/blob/main/icon/icon.png)
+
+---
 
 A simple EPS viewer and converter to PNG program based on C++ and GTK3.
 
