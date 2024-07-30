@@ -24,6 +24,6 @@ Run the program using:
 ```
 ---
 screenshot:
-![alt text](https://github.com/msbCyricTohoku/Kabuto/blob/main/icon/screenshot.png)
+![alt text](https://github.com/msbCyricTohoku/Kabuto/blob/main/icon/screenshot1.png)
 
 Enjoy.
