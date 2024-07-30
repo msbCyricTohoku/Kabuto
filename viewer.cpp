@@ -2,6 +2,7 @@
 #include <iostream>
 #include <cstdlib>
 #include <cmath>
+#include <cairo.h>
 
 Viewer::Viewer() : rotationAngle(0), pixbuf(nullptr)
 {
@@ -135,6 +136,23 @@ void Viewer::rotateImage(int angle)
     g_object_unref(rotatedPixbuf);
 }
 
+cairo_surface_t* Viewer::createSurfaceWithBackground(GdkPixbuf *pixbuf, int width, int height)
+{
+    cairo_surface_t *surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, width, height);
+    cairo_t *cr = cairo_create(surface);
+
+    // Set the background color
+    cairo_set_source_rgba(cr, bgColor.red, bgColor.green, bgColor.blue, bgColor.alpha);
+    cairo_paint(cr);
+
+    // Draw the pixbuf on the surface
+    gdk_cairo_set_source_pixbuf(cr, pixbuf, 0, 0);
+    cairo_paint(cr);
+
+    cairo_destroy(cr);
+    return surface;
+}
+
 void Viewer::saveImage()
 {
     GtkWidget *dialog = gtk_file_chooser_dialog_new("Save Image",
@@ -181,7 +199,12 @@ void Viewer::saveImage()
             return;
         }
 
-        gdk_pixbuf_save(rotatedPixbuf, outputPath.c_str(), "png", NULL, "background", gdk_rgba_to_string(&bgColor), NULL);
+        int width = gdk_pixbuf_get_width(rotatedPixbuf);
+        int height = gdk_pixbuf_get_height(rotatedPixbuf);
+        cairo_surface_t *surface = createSurfaceWithBackground(rotatedPixbuf, width, height);
+
+        cairo_surface_write_to_png(surface, outputPath.c_str());
+        cairo_surface_destroy(surface);
         g_object_unref(rotatedPixbuf);
     }
 

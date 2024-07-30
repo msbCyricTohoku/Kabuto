@@ -24,6 +24,8 @@ private:
     static void on_save_image(GtkWidget *widget, gpointer data);
     static void on_quit(GtkWidget *widget, gpointer data);
 
+    cairo_surface_t* createSurfaceWithBackground(GdkPixbuf *pixbuf, int width, int height);
+
     GtkWidget *window;
     GtkWidget *image;
     GdkRGBA bgColor;
