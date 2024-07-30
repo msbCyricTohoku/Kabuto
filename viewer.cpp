@@ -68,15 +68,15 @@ void Viewer::loadImage(const std::string &filePath)
 {
     currentFilePath = filePath;
 
-    // Create a temporary file for the PNG output
+    //create a temporary file for the PNG output -- this will be removed
     char tempPath[] = "/tmp/epsviewer_XXXXXX.png";
-    int fd = mkstemps(tempPath, 4); // 4 is the length of ".png"
+    int fd = mkstemps(tempPath, 4); //4 is the length of ".png"
     if (fd == -1)
     {
         std::cerr << "Failed to create temporary file for PNG output." << std::endl;
         return;
     }
-    close(fd); // Close the file descriptor as we don't need it
+    close(fd); //close the file descriptor as we don't need it
 
     std::string command = "gs -dNOPAUSE -dBATCH -sDEVICE=pngalpha -dEPSCrop -sOutputFile=\"" + std::string(tempPath) + "\" \"" + filePath + "\"";
 
@@ -84,7 +84,7 @@ void Viewer::loadImage(const std::string &filePath)
     if (ret != 0)
     {
         std::cerr << "Ghostscript command failed with error code " << ret << std::endl;
-        std::remove(tempPath); // Remove the temporary file
+        std::remove(tempPath); //remove the temporary file
         return;
     }
 
@@ -94,14 +94,14 @@ void Viewer::loadImage(const std::string &filePath)
     {
         std::cerr << "Failed to load image: " << error->message << std::endl;
         g_error_free(error);
-        std::remove(tempPath); // Remove the temporary file
+        std::remove(tempPath); //remove the temporary file important
         return;
     }
 
     gtk_image_set_from_pixbuf(GTK_IMAGE(image), pixbuf);
     gtk_widget_show(image);
 
-    std::remove(tempPath); // Remove the temporary file
+    std::remove(tempPath); //remove the temporary file important to avoid flooding the dir
 }
 
 void Viewer::setBackgroundColor(GdkRGBA color)
@@ -136,7 +136,7 @@ void Viewer::rotateImage(int angle)
         rotatedPixbuf = gdk_pixbuf_rotate_simple(pixbuf, GDK_PIXBUF_ROTATE_COUNTERCLOCKWISE);
         break;
     default:
-        rotatedPixbuf = gdk_pixbuf_copy(pixbuf); // No rotation
+        rotatedPixbuf = gdk_pixbuf_copy(pixbuf); //no rotation
         break;
     }
 
@@ -155,11 +155,11 @@ cairo_surface_t* Viewer::createSurfaceWithBackground(GdkPixbuf *pixbuf, int widt
     cairo_surface_t *surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, width, height);
     cairo_t *cr = cairo_create(surface);
 
-    // Set the background color
+    //we set the background color
     cairo_set_source_rgba(cr, bgColor.red, bgColor.green, bgColor.blue, bgColor.alpha);
     cairo_paint(cr);
 
-    // Draw the pixbuf on the surface
+    //here draw the pixbuf on the surface
     gdk_cairo_set_source_pixbuf(cr, pixbuf, 0, 0);
     cairo_paint(cr);
 
