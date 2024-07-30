@@ -28,10 +28,18 @@ Viewer::Viewer() : rotationAngle(0)
     GtkWidget *rotateRightButton = gtk_button_new_with_label("Rotate Right");
     gtk_box_pack_start(GTK_BOX(buttonBox), rotateRightButton, FALSE, FALSE, 0);
 
+    GtkWidget *saveButton = gtk_button_new_with_label("Save as PNG");
+    gtk_box_pack_start(GTK_BOX(buttonBox), saveButton, FALSE, FALSE, 0);
+
+    GtkWidget *quitButton = gtk_button_new_with_label("Quit");
+    gtk_box_pack_start(GTK_BOX(buttonBox), quitButton, FALSE, FALSE, 0);
+
     g_signal_connect(openButton, "clicked", G_CALLBACK(Viewer::on_open_image), this);
     g_signal_connect(colorButton, "clicked", G_CALLBACK(Viewer::on_change_bg_color), this);
     g_signal_connect(rotateLeftButton, "clicked", G_CALLBACK(Viewer::on_rotate_left), this);
     g_signal_connect(rotateRightButton, "clicked", G_CALLBACK(Viewer::on_rotate_right), this);
+    g_signal_connect(saveButton, "clicked", G_CALLBACK(Viewer::on_save_image), this);
+    g_signal_connect(quitButton, "clicked", G_CALLBACK(Viewer::on_quit), this);
     g_signal_connect(window, "destroy", G_CALLBACK(gtk_main_quit), NULL);
 
     gtk_container_add(GTK_CONTAINER(window), box);
@@ -121,6 +129,44 @@ void Viewer::rotateImage(int angle)
     g_object_unref(pixbuf);
 }
 
+void Viewer::saveImage()
+{
+    GtkWidget *dialog = gtk_file_chooser_dialog_new("Save Image",
+                                                    GTK_WINDOW(window),
+                                                    GTK_FILE_CHOOSER_ACTION_SAVE,
+                                                    "_Cancel", GTK_RESPONSE_CANCEL,
+                                                    "_Save", GTK_RESPONSE_ACCEPT,
+                                                    NULL);
+
+    gtk_file_chooser_set_do_overwrite_confirmation(GTK_FILE_CHOOSER(dialog), TRUE);
+
+    if (gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_ACCEPT)
+    {
+        char *filePath = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
+        std::string outputPath(filePath);
+        g_free(filePath);
+
+        std::string inputPath = currentFilePath + ".png";
+        GdkPixbuf *pixbuf = gdk_pixbuf_new_from_file(inputPath.c_str(), NULL);
+        if (pixbuf)
+        {
+            gdk_pixbuf_save(pixbuf, outputPath.c_str(), "png", NULL, NULL);
+            g_object_unref(pixbuf);
+        }
+        else
+        {
+            std::cerr << "Failed to load image for saving." << std::endl;
+        }
+    }
+
+    gtk_widget_destroy(dialog);
+}
+
+void Viewer::quit()
+{
+    gtk_main_quit();
+}
+
 void Viewer::on_open_image(GtkWidget *widget, gpointer data)
 {
     Viewer *viewer = static_cast<Viewer *>(data);
@@ -167,4 +213,16 @@ void Viewer::on_rotate_right(GtkWidget *widget, gpointer data)
 {
     Viewer *viewer = static_cast<Viewer *>(data);
     viewer->rotateImage(90);
+}
+
+void Viewer::on_save_image(GtkWidget *widget, gpointer data)
+{
+    Viewer *viewer = static_cast<Viewer *>(data);
+    viewer->saveImage();
+}
+
+void Viewer::on_quit(GtkWidget *widget, gpointer data)
+{
+    Viewer *viewer = static_cast<Viewer *>(data);
+    viewer->quit();
 }

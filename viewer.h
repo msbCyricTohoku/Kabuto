@@ -13,12 +13,16 @@ public:
     void loadImage(const std::string &filePath);
     void setBackgroundColor(GdkRGBA color);
     void rotateImage(int angle);
+    void saveImage();
+    void quit();
 
 private:
     static void on_open_image(GtkWidget *widget, gpointer data);
     static void on_change_bg_color(GtkWidget *widget, gpointer data);
     static void on_rotate_left(GtkWidget *widget, gpointer data);
     static void on_rotate_right(GtkWidget *widget, gpointer data);
+    static void on_save_image(GtkWidget *widget, gpointer data);
+    static void on_quit(GtkWidget *widget, gpointer data);
 
     GtkWidget *window;
     GtkWidget *image;
