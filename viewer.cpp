@@ -224,9 +224,14 @@ void Viewer::saveImage()
         std::string outputPath(filePath);
         g_free(filePath);
 
+        //this is important to automatically add .png extension to the end of filepath 
+        if (outputPath.substr(outputPath.find_last_of(".") + 1) != "png") {
+            outputPath += ".png";
+        }
+
         if (!pixbuf)
         {
-            std::cerr << "No image loaded to save." << std::endl;
+            std::cerr << "No EPS image loaded to save." << std::endl;
             return;
         }
 
