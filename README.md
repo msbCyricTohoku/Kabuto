@@ -1,6 +1,6 @@
 **Kabuto**
 ---
-![alt text](https://github.com/msbCyricTohoku/Kabuto/blob/main/icon/icon.png)
+![alt text](https://github.com/msbCyricTohoku/Kabuto/blob/main/icon/icon-main.png)
 
 ---
 
