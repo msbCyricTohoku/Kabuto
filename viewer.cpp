@@ -117,11 +117,38 @@ void Viewer::loadImage(const std::string &filePath)
     std::remove(tempPath); //remove the temporary file important to avoid flooding the dir
 }
 
+//void Viewer::setBackgroundColor(GdkRGBA color)
+//{
+//    bgColor = color;
+//    gtk_widget_override_background_color(window, GTK_STATE_FLAG_NORMAL, &bgColor);
+//}
+
+//gtk_widget_override_background_color is deprecated so now we need to use css style
 void Viewer::setBackgroundColor(GdkRGBA color)
 {
     bgColor = color;
-    gtk_widget_override_background_color(window, GTK_STATE_FLAG_NORMAL, &bgColor);
+
+    //convert GdkRGBA color to CSS string
+    char css[256];
+    snprintf(css, sizeof(css),
+             "window { background-color: rgba(%d, %d, %d, %f); }",
+             static_cast<int>(color.red * 255),
+             static_cast<int>(color.green * 255),
+             static_cast<int>(color.blue * 255),
+             color.alpha);
+
+    //here we create a new CSS provider
+    GtkCssProvider* cssProvider = gtk_css_provider_new();
+    gtk_css_provider_load_from_data(cssProvider, css, -1, NULL);
+
+    //here gets the screen and apply the CSS provider
+    GdkScreen* screen = gdk_screen_get_default();
+    gtk_style_context_add_provider_for_screen(screen, GTK_STYLE_PROVIDER(cssProvider), GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+
+    //clean the object
+    g_object_unref(cssProvider);
 }
+
 
 void Viewer::rotateImage(int angle)
 {
