@@ -278,13 +278,20 @@ void Viewer::quit()
 void Viewer::on_open_image(GtkWidget *widget, gpointer data)
 {
     Viewer *viewer = static_cast<Viewer *>(data);
+    GtkFileFilter *filter;
 
-    GtkWidget *dialog = gtk_file_chooser_dialog_new("Open EPS File",
+    GtkWidget *dialog = gtk_file_chooser_dialog_new("Open an EPS image File",
                                                     GTK_WINDOW(viewer->window),
                                                     GTK_FILE_CHOOSER_ACTION_OPEN,
                                                     "_Cancel", GTK_RESPONSE_CANCEL,
                                                     "_Open", GTK_RESPONSE_ACCEPT,
                                                     NULL);
+
+    filter = gtk_file_filter_new();
+    gtk_file_filter_add_pattern(filter, "*.eps");
+    gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(dialog), filter);
+    //gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(dialog), "test.cpp");
+    gtk_widget_show_all(dialog);
 
     if (gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_ACCEPT)
     {
