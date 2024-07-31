@@ -8,9 +8,20 @@
 
 Viewer::Viewer() : rotationAngle(0), pixbuf(nullptr)
 {
+    GError *error = NULL;
     window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     gtk_window_set_title(GTK_WINDOW(window), "Kabuto EPS Viewer/Converter");
     gtk_window_set_default_size(GTK_WINDOW(window), 800, 600);
+
+    //gtk_window_set_icon(GTK_WINDOW(window), create_pixbuf("icon/icon.png"));
+    //gtk_window_set_icon_from_file(GTK_WINDOW(window), "icon/icon.png", NULL);
+
+    //here the Kabuto icon is added, it also checks if the icon is missing
+    if (!gtk_window_set_icon_from_file(GTK_WINDOW(window), "icon/icon.png", &error)) {
+        g_printerr("Error loading icon file: %s\n", error->message);
+        g_clear_error(&error);
+    }
+
 
     image = gtk_image_new();
     GtkWidget *box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
@@ -85,7 +96,7 @@ void Viewer::loadImage(const std::string &filePath)
     int ret = std::system(command.c_str());
     if (ret != 0)
     {
-        std::cerr << "Ghostscript command failed with error code " << ret << std::endl;
+        std::cerr << "Ghostscript command failed with error code 555" << ret << std::endl; //note error code 555 refers to missing ghostscript on user PC
         std::remove(tempPath); //remove the temporary file
         return;
     }
